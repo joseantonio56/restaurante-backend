@@ -18,8 +18,9 @@ public class MesaService {
 
     // Obtener todas las mesas
     public List<Mesa> listarMesas() {
-        return mesaRepository.findAll();
+        return mesaRepository.findAllByOrderByIdAsc();
     }
+
 
     // Crear una nueva mesa (siempre empieza LIBRE)
     public Mesa crearMesa() {
@@ -32,14 +33,23 @@ public class MesaService {
         Mesa mesa = mesaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Mesa no encontrada"));
 
-        mesa.setEstado(mesa.getEstado() == EstadoMesa.LIBRE ? EstadoMesa.OCUPADA : EstadoMesa.LIBRE);
+        // Cambiar estado: si está LIBRE, pasa a OCUPADA, si está OCUPADA, pasa a LIBRE
+        if (mesa.getEstado() == EstadoMesa.LIBRE) {
+            mesa.setEstado(EstadoMesa.OCUPADA);
+        } else {
+            mesa.setEstado(EstadoMesa.LIBRE);
+        }
+
+        // Guardar la mesa con el nuevo estado
         return mesaRepository.save(mesa);
     }
+
     // Eliminar una mesa por id
     public void eliminarMesa(Integer id) {
         Mesa mesa = mesaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Mesa no encontrada"));
         mesaRepository.delete(mesa);
     }
+
 
 }
